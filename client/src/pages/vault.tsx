@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { MOCK_VAULT_ITEMS, CATEGORIES } from "@/lib/mock-data";
 import CredentialCard from "@/components/credential-card";
+import GroupedCredentialCard from "@/components/grouped-credential-card";
 import { Input } from "@/components/ui/input";
 import { Search, SlidersHorizontal, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -17,6 +18,17 @@ export default function Vault() {
                           item.username?.toLowerCase().includes(search.toLowerCase());
     return matchesFilter && matchesSearch;
   });
+
+  // Group items by title (company name)
+  const groupedItems = filteredItems.reduce((groups, item) => {
+    const existing = groups.find(g => g.title === item.title);
+    if (existing) {
+      existing.items.push(item);
+    } else {
+      groups.push({ title: item.title, items: [item] });
+    }
+    return groups;
+  }, [] as Array<{ title: string; items: typeof MOCK_VAULT_ITEMS }>);
 
   return (
     <div className="space-y-6">
@@ -67,16 +79,16 @@ export default function Vault() {
         className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"
       >
         <AnimatePresence>
-            {filteredItems.map((item) => (
+            {groupedItems.map((group) => (
             <motion.div
-                key={item.id}
+                key={group.title}
                 layout
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.9 }}
                 transition={{ duration: 0.2 }}
             >
-                <CredentialCard item={item} />
+                <GroupedCredentialCard title={group.title} items={group.items} />
             </motion.div>
             ))}
         </AnimatePresence>
