@@ -19,13 +19,23 @@ import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import vaultImage from "@assets/generated_images/abstract_cybersecurity_vault_lock_concept.png";
 
-export default function Layout({ children }: { children: React.ReactNode }) {
-  const [location] = useLocation();
+export default function Layout({ children, onLogout }: { children: React.ReactNode; onLogout?: () => void }) {
+  const [location, setLocation] = useLocation();
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [itemType, setItemType] = useState("login");
   const [title, setTitle] = useState("");
   const { toast } = useToast();
+
+  const handleLogout = () => {
+    localStorage.removeItem("isLoggedIn");
+    localStorage.removeItem("userEmail");
+    toast({
+      title: "Logged out",
+      description: "You have been signed out of your account",
+    });
+    onLogout?.();
+  };
 
   const navigation = [
     { name: "Overview", href: "/", icon: LayoutDashboard },
@@ -103,9 +113,12 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       </nav>
 
       <div className="p-4 border-t border-sidebar-border">
-        <button className="flex items-center gap-3 px-3 py-2.5 w-full rounded-lg text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-sidebar-accent/50 transition-colors cursor-pointer">
+        <button 
+          onClick={handleLogout}
+          className="flex items-center gap-3 px-3 py-2.5 w-full rounded-lg text-sm font-medium text-destructive hover:text-destructive hover:bg-destructive/10 transition-colors cursor-pointer"
+        >
           <LogOut className="h-4 w-4" />
-          Sign Out
+          Logout
         </button>
       </div>
     </div>
