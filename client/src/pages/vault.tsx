@@ -11,6 +11,7 @@ import { motion, AnimatePresence } from "framer-motion";
 export default function Vault() {
   const [filter, setFilter] = useState("all");
   const [search, setSearch] = useState("");
+  const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set());
 
   const filteredItems = MOCK_VAULT_ITEMS.filter((item) => {
     const matchesFilter = filter === "all" || item.type === filter;
@@ -29,6 +30,38 @@ export default function Vault() {
     }
     return groups;
   }, [] as Array<{ title: string; items: typeof MOCK_VAULT_ITEMS }>);
+
+  const toggleGroup = (title: string) => {
+    const newExpanded = new Set(expandedGroups);
+    if (newExpanded.has(title)) {
+      newExpanded.delete(title);
+    } else {
+      newExpanded.add(title);
+    }
+    setExpandedGroups(newExpanded);
+  };
+
+  // Flatten the display: if a group is expanded, show individual items; otherwise show group card
+  type DisplayItem = 
+    | { type: "item"; data: typeof MOCK_VAULT_ITEMS[0] }
+    | { type: "group"; group: { title: string; items: typeof MOCK_VAULT_ITEMS } };
+  
+  const displayItems: DisplayItem[] = [];
+  
+  groupedItems.forEach((group) => {
+    if (expandedGroups.has(group.title)) {
+      // Add individual items for this group
+      group.items.forEach((item) => {
+        displayItems.push({ type: "item", data: item });
+      });
+    } else if (group.items.length === 1) {
+      // Single items show directly
+      displayItems.push({ type: "item", data: group.items[0] });
+    } else {
+      // Multiple items show as group card
+      displayItems.push({ type: "group", group });
+    }
+  });
 
   return (
     <div className="space-y-6">
@@ -79,18 +112,27 @@ export default function Vault() {
         className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"
       >
         <AnimatePresence>
-            {groupedItems.map((group) => (
+          {displayItems.map((displayItem, index) => (
             <motion.div
-                key={group.title}
-                layout
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.9 }}
-                transition={{ duration: 0.2 }}
+              key={displayItem.type === "group" ? displayItem.group.title : displayItem.data.id}
+              layout
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+              transition={{ duration: 0.2 }}
             >
-                <GroupedCredentialCard title={group.title} items={group.items} />
+              {displayItem.type === "group" ? (
+                <GroupedCredentialCard
+                  title={displayItem.group.title}
+                  items={displayItem.group.items}
+                  isExpanded={expandedGroups.has(displayItem.group.title)}
+                  onToggle={() => toggleGroup(displayItem.group.title)}
+                />
+              ) : (
+                <CredentialCard item={displayItem.data} />
+              )}
             </motion.div>
-            ))}
+          ))}
         </AnimatePresence>
       </motion.div>
       
