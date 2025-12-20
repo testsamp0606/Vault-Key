@@ -60,7 +60,6 @@ export default function CredentialCard({ item }: CredentialCardProps) {
           </div>
           <div>
             <h3 className="font-semibold leading-none tracking-tight">{item.title}</h3>
-            <p className="text-sm text-muted-foreground mt-1">{item.subtitle}</p>
           </div>
         </div>
         <DropdownMenu>
