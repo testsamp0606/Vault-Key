@@ -290,6 +290,28 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               </>
             )}
 
+            {itemType === "wifi" && (
+              <>
+                <div className="space-y-2">
+                  <Label htmlFor="ssid">Network Name (SSID)</Label>
+                  <Input
+                    id="ssid"
+                    placeholder="My WiFi Network"
+                    className="bg-card border-border/50"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="wifi-password">WiFi Password</Label>
+                  <Input
+                    id="wifi-password"
+                    type="password"
+                    placeholder="••••••••••"
+                    className="bg-card border-border/50"
+                  />
+                </div>
+              </>
+            )}
+
             <div className="flex gap-3 justify-end pt-4">
               <Button
                 type="button"

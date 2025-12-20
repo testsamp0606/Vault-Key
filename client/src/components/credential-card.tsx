@@ -71,9 +71,41 @@ export default function CredentialCard({ item }: CredentialCardProps) {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem data-testid="edit-item">Edit</DropdownMenuItem>
-            <DropdownMenuItem data-testid="share-item">Share</DropdownMenuItem>
-            <DropdownMenuItem className="text-destructive" data-testid="delete-item">Delete</DropdownMenuItem>
+            <DropdownMenuItem 
+              data-testid="edit-item"
+              onClick={() => {
+                toast({
+                  title: "Edit Item",
+                  description: `Editing "${item.title}" - Feature coming soon`,
+                });
+              }}
+            >
+              Edit
+            </DropdownMenuItem>
+            <DropdownMenuItem 
+              data-testid="share-item"
+              onClick={() => {
+                toast({
+                  title: "Share Item",
+                  description: `Sharing "${item.title}" - Feature coming soon`,
+                });
+              }}
+            >
+              Share
+            </DropdownMenuItem>
+            <DropdownMenuItem 
+              className="text-destructive" 
+              data-testid="delete-item"
+              onClick={() => {
+                toast({
+                  title: "Item Deleted",
+                  description: `"${item.title}" has been deleted from your vault`,
+                  variant: "destructive",
+                });
+              }}
+            >
+              Delete
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </CardHeader>
@@ -145,6 +177,9 @@ export default function CredentialCard({ item }: CredentialCardProps) {
                <div className="font-mono text-white tracking-wider text-sm mb-2">
                  {showPassword ? item.cardNumber : `•••• •••• •••• ${item.cardNumber?.slice(-4)}`}
                </div>
+               {showPassword && item.cvv && (
+                 <div className="text-xs text-white/70 mb-2">CVV: {item.cvv}</div>
+               )}
                {item.nameOnCard && <div className="text-xs text-white/70">{item.nameOnCard}</div>}
              </div>
              <Button 
