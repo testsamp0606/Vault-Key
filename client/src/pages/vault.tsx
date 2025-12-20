@@ -145,7 +145,7 @@ export default function Vault() {
           </TabsList>
         </Tabs>
 
-        <div className="flex gap-2 flex-wrap">
+        <div className="flex gap-2 flex-wrap items-center">
           <div className="relative flex-1 min-w-[200px] md:min-w-[300px]">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input 
@@ -156,15 +156,15 @@ export default function Vault() {
             />
           </div>
 
-          {/* Favorites Filter */}
+          {/* Favorites Filter - Star Icon Only */}
           <Button 
             variant={showOnlyFavorites ? "default" : "outline"}
             size="sm"
-            className="gap-2"
             onClick={() => setShowOnlyFavorites(!showOnlyFavorites)}
+            title="Show only favorites"
+            className="px-2.5"
           >
-            <Star className="h-4 w-4" />
-            Favorites
+            <Star className="h-4 w-4" fill={showOnlyFavorites ? "currentColor" : "none"} />
           </Button>
 
           {/* Sort Dropdown */}

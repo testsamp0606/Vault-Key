@@ -159,6 +159,7 @@ export default function Login() {
               <div className="flex justify-end">
                 <button
                   type="button"
+                  onClick={() => setLocation("/forgot-password")}
                   className="text-sm text-primary hover:text-primary/80 transition-colors"
                 >
                   Forgot password?
@@ -198,7 +199,11 @@ export default function Login() {
             {/* Sign Up Link */}
             <p className="text-center text-sm text-slate-400">
               Don't have an account?{" "}
-              <button type="button" className="text-primary hover:text-primary/80 font-medium transition-colors">
+              <button 
+                type="button" 
+                onClick={() => setLocation("/register")}
+                className="text-primary hover:text-primary/80 font-medium transition-colors"
+              >
                 Sign up
               </button>
             </p>

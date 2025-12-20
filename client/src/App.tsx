@@ -11,6 +11,8 @@ import Security from "@/pages/security";
 import Settings from "@/pages/settings";
 import Notes from "@/pages/notes";
 import Login from "@/pages/login";
+import ForgotPassword from "@/pages/forgot-password";
+import Register from "@/pages/register";
 import Layout from "@/components/layout";
 
 function Router() {
@@ -41,7 +43,14 @@ function Router() {
   }
 
   if (!isLoggedIn) {
-    return <Login />;
+    return (
+      <Switch>
+        <Route path="/login" component={Login} />
+        <Route path="/forgot-password" component={ForgotPassword} />
+        <Route path="/register" component={Register} />
+        <Route component={Login} />
+      </Switch>
+    );
   }
 
   return (
