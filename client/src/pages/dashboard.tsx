@@ -8,7 +8,7 @@ import { motion } from "framer-motion";
 export default function Dashboard() {
   const recentItems = MOCK_VAULT_ITEMS.slice(0, 4);
   const weakPasswords = MOCK_VAULT_ITEMS.filter(i => i.strength === 'weak').length;
-  const reusedPasswords = 2; // Mock statistic
+  const reusedPasswords = 2;
 
   const container = {
     hidden: { opacity: 0 },
@@ -26,7 +26,7 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 animate-in fade-in duration-500">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold text-foreground">Welcome back</h1>
@@ -43,7 +43,7 @@ export default function Dashboard() {
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-primary/10 border border-primary/20 p-6 rounded-2xl flex items-center gap-4">
+        <div className="bg-primary/10 border border-primary/20 p-6 rounded-2xl flex items-center gap-4 hover:shadow-lg transition-shadow">
           <div className="p-3 bg-primary/20 rounded-xl text-primary">
             <ShieldCheck className="h-6 w-6" />
           </div>
@@ -53,7 +53,7 @@ export default function Dashboard() {
           </div>
         </div>
 
-        <div className="bg-card border border-border/50 p-6 rounded-2xl flex items-center gap-4">
+        <div className="bg-card border border-border/50 p-6 rounded-2xl flex items-center gap-4 hover:shadow-lg transition-shadow">
           <div className="p-3 bg-muted rounded-xl text-foreground">
             <Lock className="h-6 w-6" />
           </div>
@@ -63,7 +63,7 @@ export default function Dashboard() {
           </div>
         </div>
 
-        <div className="bg-destructive/10 border border-destructive/20 p-6 rounded-2xl flex items-center gap-4">
+        <div className="bg-destructive/10 border border-destructive/20 p-6 rounded-2xl flex items-center gap-4 hover:shadow-lg transition-shadow">
           <div className="p-3 bg-destructive/20 rounded-xl text-destructive">
             <AlertTriangle className="h-6 w-6" />
           </div>
@@ -97,14 +97,14 @@ export default function Dashboard() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         <div className="space-y-4">
             <h2 className="text-xl font-semibold">Security Actions</h2>
-            <div className="p-4 rounded-xl border border-border bg-card/30 flex items-center justify-between">
+            <div className="p-4 rounded-xl border border-border bg-card/30 hover:border-border hover:shadow-md transition-all flex items-center justify-between">
                 <div>
                     <div className="font-medium">Enable 2FA</div>
                     <div className="text-sm text-muted-foreground">Protect your vault with extra security</div>
                 </div>
                 <Button variant="outline" size="sm">Setup</Button>
             </div>
-             <div className="p-4 rounded-xl border border-border bg-card/30 flex items-center justify-between">
+             <div className="p-4 rounded-xl border border-border bg-card/30 hover:border-border hover:shadow-md transition-all flex items-center justify-between">
                 <div>
                     <div className="font-medium">Import Passwords</div>
                     <div className="text-sm text-muted-foreground">Import from Chrome or CSV</div>
