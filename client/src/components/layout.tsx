@@ -7,11 +7,11 @@ import {
   Settings, 
   LogOut, 
   Menu,
-  Plus
+  Plus,
+  FileText
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent } from "@/components/ui/sheet";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -31,6 +31,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     { name: "Overview", href: "/", icon: LayoutDashboard },
     { name: "All Items", href: "/vault", icon: Lock },
     { name: "Security Check", href: "/security", icon: ShieldCheck },
+    { name: "Notes", href: "/notes", icon: FileText },
     { name: "Settings", href: "/settings", icon: Settings },
   ];
 
@@ -144,15 +145,12 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         </div>
       </main>
 
-      {/* Add Item Dialog */}
-      <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-        <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Add New Item</DialogTitle>
-            <DialogDescription>
-              Create a new credential or document in your SecureVault.
-            </DialogDescription>
-          </DialogHeader>
+      {/* Add Item Sheet */}
+      <Sheet open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+        <SheetContent side="right" className="w-full sm:max-w-[500px] max-h-[100vh] overflow-y-auto">
+          <SheetHeader>
+            <SheetTitle>Add New Item</SheetTitle>
+          </SheetHeader>
           
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
@@ -325,8 +323,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               </Button>
             </div>
           </form>
-        </DialogContent>
-      </Dialog>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 }
