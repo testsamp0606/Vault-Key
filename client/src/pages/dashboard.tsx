@@ -77,7 +77,9 @@ export default function Dashboard() {
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <h2 className="text-xl font-semibold">Recent Activity</h2>
-          <Button variant="link" className="text-primary p-0">View All</Button>
+          <a href="/vault">
+            <Button variant="link" className="text-primary p-0">View All</Button>
+          </a>
         </div>
 
         <motion.div 

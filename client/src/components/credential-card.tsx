@@ -10,9 +10,9 @@ import {
   Globe, 
   CreditCard, 
   FileText, 
-  Wifi, 
+  Wifi,
+  Landmark,
   MoreVertical,
-  Star,
   ExternalLink
 } from "lucide-react";
 import {
@@ -35,6 +35,7 @@ export default function CredentialCard({ item }: CredentialCardProps) {
     switch (type) {
       case 'login': return Globe;
       case 'card': return CreditCard;
+      case 'bank': return Landmark;
       case 'note': return FileText;
       case 'wifi': return Wifi;
       default: return LockIcon;
@@ -60,18 +61,19 @@ export default function CredentialCard({ item }: CredentialCardProps) {
           </div>
           <div>
             <h3 className="font-semibold leading-none tracking-tight">{item.title}</h3>
+            {item.account && <p className="text-xs text-muted-foreground mt-1">{item.account}</p>}
           </div>
         </div>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity">
-              <MoreVertical className="h-4 w-4" />
+            <Button variant="ghost" size="icon" className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity data-testid-menu-trigger">
+              <MoreVertical className="h-4 w-4" data-testid="more-icon" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem>Edit</DropdownMenuItem>
-            <DropdownMenuItem>Share</DropdownMenuItem>
-            <DropdownMenuItem className="text-destructive">Delete</DropdownMenuItem>
+            <DropdownMenuItem data-testid="edit-item">Edit</DropdownMenuItem>
+            <DropdownMenuItem data-testid="share-item">Share</DropdownMenuItem>
+            <DropdownMenuItem className="text-destructive" data-testid="delete-item">Delete</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </CardHeader>
@@ -143,6 +145,7 @@ export default function CredentialCard({ item }: CredentialCardProps) {
                <div className="font-mono text-white tracking-wider text-sm mb-2">
                  {showPassword ? item.cardNumber : `•••• •••• •••• ${item.cardNumber?.slice(-4)}`}
                </div>
+               {item.nameOnCard && <div className="text-xs text-white/70">{item.nameOnCard}</div>}
              </div>
              <Button 
                 variant="outline" 
@@ -155,9 +158,77 @@ export default function CredentialCard({ item }: CredentialCardProps) {
            </div>
         )}
 
+        {item.type === 'bank' && (
+          <div className="space-y-2">
+            <div className="p-2 rounded-md bg-muted/50 border border-transparent">
+              <div className="text-xs font-medium text-muted-foreground uppercase">Bank</div>
+              <div className="text-sm text-foreground">{item.bankName}</div>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <div className="p-2 rounded-md bg-muted/50 border border-transparent">
+                <div className="text-xs font-medium text-muted-foreground uppercase">Type</div>
+                <div className="text-sm text-foreground">{item.accountType}</div>
+              </div>
+              <div className="p-2 rounded-md bg-muted/50 border border-transparent">
+                <div className="text-xs font-medium text-muted-foreground uppercase">Account</div>
+                <div className="text-sm font-mono text-foreground">{item.accountNumber}</div>
+              </div>
+            </div>
+            <div className="p-2 rounded-md bg-muted/50 border border-transparent flex items-center justify-between">
+              <div>
+                <div className="text-xs font-medium text-muted-foreground uppercase">Routing</div>
+                <div className="text-sm font-mono text-foreground">{item.routingNumber}</div>
+              </div>
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="h-6 w-6 shrink-0"
+                onClick={() => copyToClipboard(item.routingNumber || '', 'Routing Number')}
+              >
+                <Copy className="h-3 w-3" />
+              </Button>
+            </div>
+          </div>
+        )}
+
         {item.type === 'note' && (
           <div className="bg-muted/50 p-3 rounded-md text-sm text-muted-foreground min-h-[80px]">
             {item.notes}
+          </div>
+        )}
+
+        {item.type === 'wifi' && (
+          <div className="space-y-2">
+            <div className="p-2 rounded-md bg-muted/50 border border-transparent">
+              <div className="text-xs font-medium text-muted-foreground uppercase">SSID</div>
+              <div className="text-sm text-foreground">{item.title}</div>
+            </div>
+            <div className="flex items-center justify-between p-2 rounded-md bg-muted/50 border border-transparent">
+              <div className="flex items-center gap-2 overflow-hidden">
+                <span className="text-xs font-medium text-muted-foreground uppercase">Pass</span>
+                <span className="text-sm font-mono truncate">
+                  {showPassword ? item.password : "••••••••••••"}
+                </span>
+              </div>
+              <div className="flex gap-1">
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="h-6 w-6 shrink-0"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? <EyeOff className="h-3 w-3" /> : <Eye className="h-3 w-3" />}
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="h-6 w-6 shrink-0"
+                  onClick={() => copyToClipboard(item.password || '', 'WiFi Password')}
+                >
+                  <Copy className="h-3 w-3" />
+                </Button>
+              </div>
+            </div>
           </div>
         )}
       </CardContent>

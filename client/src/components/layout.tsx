@@ -7,8 +7,7 @@ import {
   Settings, 
   LogOut, 
   Menu,
-  Plus,
-  X
+  Plus
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
@@ -147,7 +146,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
       {/* Add Item Dialog */}
       <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Add New Item</DialogTitle>
             <DialogDescription>
@@ -155,7 +154,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             </DialogDescription>
           </DialogHeader>
           
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="type">Item Type</Label>
               <Select value={itemType} onValueChange={setItemType}>
@@ -165,6 +164,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 <SelectContent>
                   <SelectItem value="login">🔑 Login</SelectItem>
                   <SelectItem value="card">💳 Credit Card</SelectItem>
+                  <SelectItem value="bank">🏦 Bank Account</SelectItem>
                   <SelectItem value="note">📝 Secure Note</SelectItem>
                   <SelectItem value="wifi">📶 WiFi</SelectItem>
                 </SelectContent>
@@ -185,6 +185,14 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
             {itemType === "login" && (
               <>
+                <div className="space-y-2">
+                  <Label htmlFor="account">Account (Optional)</Label>
+                  <Input
+                    id="account"
+                    placeholder="e.g., personal, work, business"
+                    className="bg-card border-border/50"
+                  />
+                </div>
                 <div className="space-y-2">
                   <Label htmlFor="username">Username or Email</Label>
                   <Input
@@ -207,6 +215,14 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
             {itemType === "card" && (
               <>
+                <div className="space-y-2">
+                  <Label htmlFor="card-name">Name on Card</Label>
+                  <Input
+                    id="card-name"
+                    placeholder="John Doe"
+                    className="bg-card border-border/50"
+                  />
+                </div>
                 <div className="space-y-2">
                   <Label htmlFor="card-number">Card Number</Label>
                   <Input
@@ -233,6 +249,43 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                       className="bg-card border-border/50"
                     />
                   </div>
+                </div>
+              </>
+            )}
+
+            {itemType === "bank" && (
+              <>
+                <div className="space-y-2">
+                  <Label htmlFor="bank-name">Bank Name</Label>
+                  <Input
+                    id="bank-name"
+                    placeholder="e.g., Chase Bank"
+                    className="bg-card border-border/50"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="account-type">Account Type</Label>
+                  <Input
+                    id="account-type"
+                    placeholder="e.g., Checking, Savings"
+                    className="bg-card border-border/50"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="account-number">Account Number</Label>
+                  <Input
+                    id="account-number"
+                    placeholder="••••••5678"
+                    className="bg-card border-border/50"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="routing-number">Routing Number</Label>
+                  <Input
+                    id="routing-number"
+                    placeholder="021000021"
+                    className="bg-card border-border/50"
+                  />
                 </div>
               </>
             )}
