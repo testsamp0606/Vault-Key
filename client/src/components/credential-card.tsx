@@ -13,7 +13,8 @@ import {
   Wifi,
   Landmark,
   MoreVertical,
-  ExternalLink
+  ExternalLink,
+  Star
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -25,9 +26,11 @@ import { useToast } from "@/hooks/use-toast";
 
 interface CredentialCardProps {
   item: VaultItem;
+  onFavoriteToggle?: (itemId: string) => void;
+  isFavorite?: boolean;
 }
 
-export default function CredentialCard({ item }: CredentialCardProps) {
+export default function CredentialCard({ item, onFavoriteToggle, isFavorite = false }: CredentialCardProps) {
   const [showPassword, setShowPassword] = useState(false);
   const { toast } = useToast();
 
@@ -64,50 +67,70 @@ export default function CredentialCard({ item }: CredentialCardProps) {
             {item.account && <p className="text-xs text-muted-foreground mt-1">{item.account}</p>}
           </div>
         </div>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity data-testid-menu-trigger">
-              <MoreVertical className="h-4 w-4" data-testid="more-icon" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem 
-              data-testid="edit-item"
-              onClick={() => {
-                toast({
-                  title: "Edit Item",
-                  description: `Editing "${item.title}" - Feature coming soon`,
-                });
-              }}
-            >
-              Edit
-            </DropdownMenuItem>
-            <DropdownMenuItem 
-              data-testid="share-item"
-              onClick={() => {
-                toast({
-                  title: "Share Item",
-                  description: `Sharing "${item.title}" - Feature coming soon`,
-                });
-              }}
-            >
-              Share
-            </DropdownMenuItem>
-            <DropdownMenuItem 
-              className="text-destructive" 
-              data-testid="delete-item"
-              onClick={() => {
-                toast({
-                  title: "Item Deleted",
-                  description: `"${item.title}" has been deleted from your vault`,
-                  variant: "destructive",
-                });
-              }}
-            >
-              Delete
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8"
+            onClick={() => {
+              onFavoriteToggle?.(item.id);
+              toast({
+                title: isFavorite ? "Removed from favorites" : "Added to favorites",
+                description: `"${item.title}" ${isFavorite ? "removed from" : "added to"} your favorites`,
+              });
+            }}
+          >
+            <Star
+              className={`h-4 w-4 transition-colors ${
+                isFavorite ? "fill-primary text-primary" : "text-muted-foreground"
+              }`}
+            />
+          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon" className="h-8 w-8 data-testid-menu-trigger">
+                <MoreVertical className="h-4 w-4" data-testid="more-icon" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem 
+                data-testid="edit-item"
+                onClick={() => {
+                  toast({
+                    title: "Edit Item",
+                    description: `Editing "${item.title}" - Feature coming soon`,
+                  });
+                }}
+              >
+                Edit
+              </DropdownMenuItem>
+              <DropdownMenuItem 
+                data-testid="share-item"
+                onClick={() => {
+                  toast({
+                    title: "Share Item",
+                    description: `Sharing "${item.title}" - Feature coming soon`,
+                  });
+                }}
+              >
+                Share
+              </DropdownMenuItem>
+              <DropdownMenuItem 
+                className="text-destructive" 
+                data-testid="delete-item"
+                onClick={() => {
+                  toast({
+                    title: "Item Deleted",
+                    description: `"${item.title}" has been deleted from your vault`,
+                    variant: "destructive",
+                  });
+                }}
+              >
+                Delete
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </CardHeader>
       <CardContent className="pt-4">
         {item.type === 'login' && (

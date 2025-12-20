@@ -1,24 +1,78 @@
 import { useState } from "react";
-import { MOCK_VAULT_ITEMS, CATEGORIES } from "@/lib/mock-data";
+import { MOCK_VAULT_ITEMS, CATEGORIES, VaultItem } from "@/lib/mock-data";
 import CredentialCard from "@/components/credential-card";
 import GroupedCredentialCard from "@/components/grouped-credential-card";
 import { Input } from "@/components/ui/input";
-import { Search, SlidersHorizontal, Plus } from "lucide-react";
+import { Search, SlidersHorizontal, Plus, Star, ArrowUpDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+  DropdownMenuCheckboxItem,
+} from "@/components/ui/dropdown-menu";
 import { motion, AnimatePresence } from "framer-motion";
+
+type SortOption = "name" | "lastUsed" | "dateAdded" | "favorites";
 
 export default function Vault() {
   const [filter, setFilter] = useState("all");
   const [search, setSearch] = useState("");
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set());
+  const [favorites, setFavorites] = useState<Set<string>>(
+    new Set(MOCK_VAULT_ITEMS.filter(i => i.favorite).map(i => i.id))
+  );
+  const [sortBy, setSortBy] = useState<SortOption>("lastUsed");
+  const [showOnlyFavorites, setShowOnlyFavorites] = useState(false);
 
-  const filteredItems = MOCK_VAULT_ITEMS.filter((item) => {
+  // Create items with updated favorite status
+  const itemsWithFavorites = MOCK_VAULT_ITEMS.map(item => ({
+    ...item,
+    favorite: favorites.has(item.id),
+  }));
+
+  let filteredItems = itemsWithFavorites.filter((item) => {
     const matchesFilter = filter === "all" || item.type === filter;
     const matchesSearch = item.title.toLowerCase().includes(search.toLowerCase()) || 
                           item.username?.toLowerCase().includes(search.toLowerCase());
-    return matchesFilter && matchesSearch;
+    const matchesFavorite = !showOnlyFavorites || favorites.has(item.id);
+    return matchesFilter && matchesSearch && matchesFavorite;
   });
+
+  // Sort items
+  filteredItems = [...filteredItems].sort((a, b) => {
+    if (sortBy === "name") {
+      return a.title.localeCompare(b.title);
+    } else if (sortBy === "favorites") {
+      return (favorites.has(b.id) ? 1 : 0) - (favorites.has(a.id) ? 1 : 0);
+    } else if (sortBy === "lastUsed") {
+      const lastUsedMap: Record<string, number> = {
+        "Just now": 0,
+        "2 hours ago": 2,
+        "30 mins ago": 0.5,
+        "1 day ago": 24,
+        "2 days ago": 48,
+        "3 days ago": 72,
+        "1 week ago": 168,
+        "1 month ago": 720,
+      };
+      return (lastUsedMap[a.lastUsed] || 999) - (lastUsedMap[b.lastUsed] || 999);
+    }
+    return 0;
+  });
+
+  const toggleFavorite = (itemId: string) => {
+    const newFavorites = new Set(favorites);
+    if (newFavorites.has(itemId)) {
+      newFavorites.delete(itemId);
+    } else {
+      newFavorites.add(itemId);
+    }
+    setFavorites(newFavorites);
+  };
 
   // Group items by title (company name)
   const groupedItems = filteredItems.reduce((groups, item) => {
@@ -75,9 +129,9 @@ export default function Vault() {
         </Button>
       </div>
 
-      <div className="flex flex-col md:flex-row gap-4 items-center justify-between sticky top-[4rem] z-30 bg-background/95 backdrop-blur-sm py-2">
-        <Tabs defaultValue="all" value={filter} onValueChange={setFilter} className="w-full md:w-auto">
-          <TabsList className="bg-muted/50 p-1">
+      <div className="space-y-4 sticky top-[4rem] z-30 bg-background/95 backdrop-blur-sm py-4 -mx-6 px-6">
+        <Tabs defaultValue="all" value={filter} onValueChange={setFilter} className="w-full">
+          <TabsList className="bg-muted/50 p-1 w-full justify-start overflow-x-auto">
             {CATEGORIES.map(category => (
                 <TabsTrigger 
                     key={category.id} 
@@ -91,8 +145,8 @@ export default function Vault() {
           </TabsList>
         </Tabs>
 
-        <div className="flex gap-2 w-full md:w-auto">
-          <div className="relative flex-1 md:w-64">
+        <div className="flex gap-2 flex-wrap">
+          <div className="relative flex-1 min-w-[200px] md:min-w-[300px]">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input 
               placeholder="Search..." 
@@ -101,9 +155,56 @@ export default function Vault() {
               className="pl-9 bg-card"
             />
           </div>
-          <Button variant="outline" size="icon">
-            <SlidersHorizontal className="h-4 w-4" />
+
+          {/* Favorites Filter */}
+          <Button 
+            variant={showOnlyFavorites ? "default" : "outline"}
+            size="sm"
+            className="gap-2"
+            onClick={() => setShowOnlyFavorites(!showOnlyFavorites)}
+          >
+            <Star className="h-4 w-4" />
+            Favorites
           </Button>
+
+          {/* Sort Dropdown */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm" className="gap-2">
+                <ArrowUpDown className="h-4 w-4" />
+                <span className="hidden sm:inline">Sort</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-48">
+              <DropdownMenuItem 
+                onClick={() => setSortBy("lastUsed")}
+                className={sortBy === "lastUsed" ? "bg-primary/10" : ""}
+              >
+                <div className="flex items-center gap-2 w-full">
+                  <input type="radio" checked={sortBy === "lastUsed"} readOnly className="h-4 w-4" />
+                  Last Used
+                </div>
+              </DropdownMenuItem>
+              <DropdownMenuItem 
+                onClick={() => setSortBy("favorites")}
+                className={sortBy === "favorites" ? "bg-primary/10" : ""}
+              >
+                <div className="flex items-center gap-2 w-full">
+                  <input type="radio" checked={sortBy === "favorites"} readOnly className="h-4 w-4" />
+                  Favorites
+                </div>
+              </DropdownMenuItem>
+              <DropdownMenuItem 
+                onClick={() => setSortBy("name")}
+                className={sortBy === "name" ? "bg-primary/10" : ""}
+              >
+                <div className="flex items-center gap-2 w-full">
+                  <input type="radio" checked={sortBy === "name"} readOnly className="h-4 w-4" />
+                  Name (A-Z)
+                </div>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
 
@@ -129,7 +230,11 @@ export default function Vault() {
                   onToggle={() => toggleGroup(displayItem.group.title)}
                 />
               ) : (
-                <CredentialCard item={displayItem.data} />
+                <CredentialCard 
+                  item={displayItem.data}
+                  onFavoriteToggle={toggleFavorite}
+                  isFavorite={favorites.has(displayItem.data.id)}
+                />
               )}
             </motion.div>
           ))}
