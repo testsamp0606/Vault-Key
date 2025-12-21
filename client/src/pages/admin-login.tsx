@@ -5,11 +5,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { Lock, Mail, Eye, EyeOff } from "lucide-react";
+import { Lock, Shield, Eye, EyeOff } from "lucide-react";
 import { motion } from "framer-motion";
 import vaultImage from "@assets/generated_images/abstract_cybersecurity_vault_lock_concept.png";
 
-export default function Login() {
+export default function AdminLogin() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -21,91 +21,41 @@ export default function Login() {
     e.preventDefault();
     setIsLoading(true);
 
-    // Validate inputs
-    if (!email.trim()) {
+    // Simple admin credentials for demo
+    const ADMIN_EMAIL = "admin@securevault.com";
+    const ADMIN_PASSWORD = "admin123";
+
+    if (email !== ADMIN_EMAIL) {
       toast({
-        title: "Email required",
-        description: "Please enter your email address",
+        title: "Invalid credentials",
+        description: "Admin email or password is incorrect",
         variant: "destructive",
       });
       setIsLoading(false);
       return;
     }
 
-    if (!password.trim()) {
+    if (password !== ADMIN_PASSWORD) {
       toast({
-        title: "Password required",
-        description: "Please enter your password",
+        title: "Invalid credentials",
+        description: "Admin email or password is incorrect",
         variant: "destructive",
       });
       setIsLoading(false);
       return;
     }
 
-    // Simulate login
+    // Simulate admin login
     setTimeout(() => {
-      // Check if user exists and get their status
-      const userData = localStorage.getItem(`user_${email}`);
-      if (userData) {
-        const user = JSON.parse(userData);
-        localStorage.setItem("isLoggedIn", "true");
-        localStorage.setItem("userEmail", email);
-        localStorage.setItem("userStatus", user.status);
-        localStorage.setItem("userPlan", user.plan);
-        
-        if (user.status === "pending") {
-          toast({
-            title: "Account pending",
-            description: "Your account is awaiting admin approval",
-          });
-          setLocation("/");
-        } else if (user.status === "inactive") {
-          toast({
-            title: "Account rejected",
-            description: "Your account has been rejected. Please contact support.",
-            variant: "destructive",
-          });
-          setIsLoading(false);
-          return;
-        } else if (user.status === "trashed") {
-          toast({
-            title: "Account deleted",
-            description: "This account has been deleted.",
-            variant: "destructive",
-          });
-          setIsLoading(false);
-          return;
-        } else {
-          // active status
-          toast({
-            title: "Login successful",
-            description: `Welcome back, ${email}!`,
-          });
-          setLocation("/");
-        }
-      } else {
-        // New login (demo user)
-        localStorage.setItem("isLoggedIn", "true");
-        localStorage.setItem("userEmail", email);
-        localStorage.setItem("userStatus", "active");
-        toast({
-          title: "Login successful",
-          description: `Welcome back, ${email}!`,
-        });
-        setLocation("/");
-      }
+      localStorage.setItem("isAdmin", "true");
+      localStorage.setItem("adminEmail", email);
+      toast({
+        title: "Admin login successful",
+        description: "Welcome to the admin dashboard",
+      });
+      setLocation("/admin-dashboard");
       setIsLoading(false);
     }, 1000);
-  };
-
-  const handleDemoLogin = () => {
-    localStorage.setItem("isLoggedIn", "true");
-    localStorage.setItem("userEmail", "demo@example.com");
-    toast({
-      title: "Demo login successful",
-      description: "Welcome to SecureVault!",
-    });
-    setLocation("/");
   };
 
   const containerVariants = {
@@ -132,15 +82,15 @@ export default function Login() {
         {/* Header */}
         <motion.div className="text-center mb-8" variants={itemVariants}>
           <div className="flex justify-center mb-4">
-            <div className="h-16 w-16 rounded-2xl bg-primary/20 flex items-center justify-center border-2 border-primary/30 overflow-hidden">
-              <img src={vaultImage} alt="Logo" className="w-full h-full object-cover opacity-90" />
+            <div className="h-16 w-16 rounded-2xl bg-primary/20 flex items-center justify-center border-2 border-primary/30">
+              <Shield className="h-8 w-8 text-primary" />
             </div>
           </div>
           <h1 className="text-4xl font-heading font-bold tracking-tight text-white mb-2">
-            SecureVault
+            Admin Panel
           </h1>
           <p className="text-slate-400 text-sm">
-            Your secure credential management system
+            SecureVault Administration Portal
           </p>
         </motion.div>
 
@@ -151,20 +101,17 @@ export default function Login() {
               {/* Email Input */}
               <div className="space-y-2">
                 <Label htmlFor="email" className="text-slate-300 text-sm font-medium">
-                  Email Address
+                  Admin Email
                 </Label>
-                <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-500" />
-                  <Input
-                    id="email"
-                    type="email"
-                    placeholder="you@example.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="pl-10 bg-slate-800 border-slate-600 text-white placeholder:text-slate-500 focus:border-primary/50 focus:ring-primary/20"
-                    disabled={isLoading}
-                  />
-                </div>
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="admin@securevault.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="bg-slate-800 border-slate-600 text-white placeholder:text-slate-500 focus:border-primary/50 focus:ring-primary/20"
+                  disabled={isLoading}
+                />
               </div>
 
               {/* Password Input */}
@@ -198,56 +145,38 @@ export default function Login() {
                 </div>
               </div>
 
-              {/* Forgot Password Link */}
-              <div className="flex justify-end">
-                <button
-                  type="button"
-                  onClick={() => setLocation("/forgot-password")}
-                  className="text-sm text-primary hover:text-primary/80 transition-colors"
-                >
-                  Forgot password?
-                </button>
-              </div>
-
               {/* Login Button */}
               <Button
                 type="submit"
                 disabled={isLoading}
                 className="w-full h-10 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold transition-all"
               >
-                {isLoading ? "Signing in..." : "Sign In"}
+                {isLoading ? "Signing in..." : "Admin Login"}
               </Button>
             </form>
 
-            {/* Divider */}
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-slate-600"></div>
-              </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-slate-900/50 text-slate-400">or</span>
+            {/* Demo Credentials */}
+            <div className="pt-4 border-t border-slate-700">
+              <p className="text-xs text-slate-400 text-center mb-3">Demo Credentials:</p>
+              <div className="space-y-2 text-xs">
+                <div className="bg-slate-800/50 p-2 rounded border border-slate-700">
+                  <p className="text-slate-300"><strong>Email:</strong> admin@securevault.com</p>
+                </div>
+                <div className="bg-slate-800/50 p-2 rounded border border-slate-700">
+                  <p className="text-slate-300"><strong>Password:</strong> admin123</p>
+                </div>
               </div>
             </div>
 
-            {/* Demo Login Button */}
-            <Button
-              type="button"
-              onClick={handleDemoLogin}
-              variant="outline"
-              className="w-full h-10 border-slate-600 text-slate-300 hover:bg-slate-800 hover:text-white transition-colors"
-            >
-              Try Demo
-            </Button>
-
-            {/* Sign Up Link */}
+            {/* Back to Login */}
             <p className="text-center text-sm text-slate-400">
-              Don't have an account?{" "}
-              <button 
-                type="button" 
-                onClick={() => setLocation("/register")}
+              Regular user?{" "}
+              <button
+                type="button"
+                onClick={() => window.location.href = "/login"}
                 className="text-primary hover:text-primary/80 font-medium transition-colors"
               >
-                Sign up
+                User Login
               </button>
             </p>
           </Card>
@@ -259,11 +188,11 @@ export default function Login() {
           variants={itemVariants}
         >
           <div className="flex gap-3">
-            <Lock className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+            <Shield className="h-5 w-5 text-primary shrink-0 mt-0.5" />
             <div>
-              <p className="text-sm font-medium text-slate-200">Bank-level Security</p>
+              <p className="text-sm font-medium text-slate-200">Admin Only</p>
               <p className="text-xs text-slate-400 mt-1">
-                Your credentials are encrypted with military-grade security
+                This area is restricted to authorized administrators only
               </p>
             </div>
           </div>

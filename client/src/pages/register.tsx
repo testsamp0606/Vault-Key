@@ -121,17 +121,28 @@ export default function Register() {
       return;
     }
 
-    // Simulate registration
+    // Simulate registration - user starts as pending
     setTimeout(() => {
+      const userData = {
+        email,
+        plan: selectedPlan,
+        registeredAt: new Date().toISOString(),
+        status: "pending" as const,
+      };
+      
+      // Save user data to localStorage
+      localStorage.setItem(`user_${email}`, JSON.stringify(userData));
+      
+      // Set login state as pending
       localStorage.setItem("isLoggedIn", "true");
       localStorage.setItem("userEmail", email);
+      localStorage.setItem("userStatus", "pending");
       localStorage.setItem("userPlan", selectedPlan);
       localStorage.setItem("planStartDate", new Date().toISOString());
 
-      const planName = PLANS.find(p => p.id === selectedPlan)?.name || "Free Trial";
       toast({
         title: "Account created!",
-        description: `Welcome! You're on the ${planName} plan.`,
+        description: "Your account is pending admin approval. You'll receive an email once approved.",
       });
       setLocation("/");
       setIsLoading(false);

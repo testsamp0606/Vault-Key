@@ -13,26 +13,29 @@ import Notes from "@/pages/notes";
 import Login from "@/pages/login";
 import ForgotPassword from "@/pages/forgot-password";
 import Register from "@/pages/register";
+import PendingApproval from "@/pages/pending-approval";
+import AdminLogin from "@/pages/admin-login";
+import AdminDashboard from "@/pages/admin-dashboard";
 import Layout from "@/components/layout";
 
 function Router() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [userStatus, setUserStatus] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [location] = useLocation();
 
   useEffect(() => {
-    // Check if user is logged in on mount
+    // Check if user is logged in or admin
     const loggedIn = localStorage.getItem("isLoggedIn") === "true";
+    const admin = localStorage.getItem("isAdmin") === "true";
+    const status = localStorage.getItem("userStatus");
+    
     setIsLoggedIn(loggedIn);
+    setIsAdmin(admin);
+    setUserStatus(status);
     setIsLoading(false);
   }, []);
-
-  // Redirect to login if not logged in (except on login page)
-  useEffect(() => {
-    if (!isLoading && !isLoggedIn && location !== "/login") {
-      // Navigation will be handled by wouter
-    }
-  }, [isLoggedIn, isLoading, location]);
 
   if (isLoading) {
     return (
@@ -42,17 +45,36 @@ function Router() {
     );
   }
 
+  // Admin routes
+  if (isAdmin) {
+    return (
+      <Switch>
+        <Route path="/admin-dashboard" component={AdminDashboard} />
+        <Route path="/admin-login" component={AdminLogin} />
+        <Route component={AdminDashboard} />
+      </Switch>
+    );
+  }
+
+  // User pending approval
+  if (isLoggedIn && userStatus === "pending") {
+    return <PendingApproval />;
+  }
+
+  // User not logged in
   if (!isLoggedIn) {
     return (
       <Switch>
         <Route path="/login" component={Login} />
         <Route path="/forgot-password" component={ForgotPassword} />
         <Route path="/register" component={Register} />
+        <Route path="/admin-login" component={AdminLogin} />
         <Route component={Login} />
       </Switch>
     );
   }
 
+  // User logged in and approved
   return (
     <Layout onLogout={() => setIsLoggedIn(false)}>
       <Switch>
