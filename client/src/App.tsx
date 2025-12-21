@@ -27,15 +27,27 @@ function Router() {
 
   useEffect(() => {
     // Check if user is logged in or admin
-    const loggedIn = localStorage.getItem("isLoggedIn") === "true";
-    const admin = localStorage.getItem("isAdmin") === "true";
-    const status = localStorage.getItem("userStatus");
+    const checkAuth = () => {
+      const loggedIn = localStorage.getItem("isLoggedIn") === "true";
+      const admin = localStorage.getItem("isAdmin") === "true";
+      const status = localStorage.getItem("userStatus");
+      
+      setIsLoggedIn(loggedIn);
+      setIsAdmin(admin);
+      setUserStatus(status);
+      setIsLoading(false);
+    };
+
+    checkAuth();
     
-    setIsLoggedIn(loggedIn);
-    setIsAdmin(admin);
-    setUserStatus(status);
-    setIsLoading(false);
-  }, []);
+    // Listen for storage changes in other tabs/windows
+    window.addEventListener("storage", checkAuth);
+    
+    // Also check when location changes
+    checkAuth();
+    
+    return () => window.removeEventListener("storage", checkAuth);
+  }, [location]);
 
   if (isLoading) {
     return (
