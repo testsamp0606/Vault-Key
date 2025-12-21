@@ -53,8 +53,8 @@ export default function AdminLogin() {
         title: "Admin login successful",
         description: "Welcome to the admin dashboard",
       });
-      setLocation("/admin-dashboard");
-      setIsLoading(false);
+      // Use direct navigation to ensure state is properly updated
+      window.location.href = "/admin-dashboard";
     }, 1000);
   };
 
