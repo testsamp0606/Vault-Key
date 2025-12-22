@@ -129,32 +129,23 @@ export default function Vault() {
         </Button>
       </div>
 
-      <div className="space-y-4 sticky top-[4rem] z-30 bg-background/95 backdrop-blur-sm py-4 -mx-6 px-6">
-        <Tabs defaultValue="all" value={filter} onValueChange={setFilter} className="w-full">
-          <TabsList className="bg-muted/50 p-1 w-full justify-start overflow-x-auto">
-            {CATEGORIES.map(category => (
-                <TabsTrigger 
-                    key={category.id} 
-                    value={category.id}
-                    className="gap-2 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm"
-                >
-                    <category.icon className="h-4 w-4" />
-                    <span className="hidden sm:inline">{category.label}</span>
-                </TabsTrigger>
-            ))}
-          </TabsList>
-        </Tabs>
-
-        <div className="flex gap-2 flex-wrap items-center">
-          <div className="relative flex-1 min-w-[200px] md:min-w-[300px]">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input 
-              placeholder="Search..." 
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="pl-9 bg-card"
-            />
-          </div>
+      <div className="sticky top-[4rem] z-30 bg-background/95 backdrop-blur-sm py-4 -mx-6 px-6">
+        <div className="flex gap-2 items-center flex-wrap md:flex-nowrap">
+          {/* Category Filters - All on one line */}
+          <Tabs defaultValue="all" value={filter} onValueChange={setFilter} className="flex-1">
+            <TabsList className="bg-transparent p-0 gap-2 h-auto">
+              {CATEGORIES.map(category => (
+                  <TabsTrigger 
+                      key={category.id} 
+                      value={category.id}
+                      className="px-3 py-1.5 rounded-md text-sm gap-1.5 border border-transparent data-[state=active]:bg-primary/10 data-[state=active]:text-foreground data-[state=active]:border-primary/30 hover:bg-muted/50 transition-colors"
+                  >
+                      <category.icon className="h-3.5 w-3.5" />
+                      <span className="hidden sm:inline">{category.label}</span>
+                  </TabsTrigger>
+              ))}
+            </TabsList>
+          </Tabs>
 
           {/* Favorites Filter - Star Icon Only */}
           <Button 
@@ -166,6 +157,17 @@ export default function Vault() {
           >
             <Star className="h-4 w-4" fill={showOnlyFavorites ? "currentColor" : "none"} />
           </Button>
+
+          {/* Search */}
+          <div className="relative hidden md:block flex-1 max-w-xs">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input 
+              placeholder="Search..." 
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="pl-9 bg-card h-9 text-sm"
+            />
+          </div>
 
           {/* Sort Dropdown */}
           <DropdownMenu>
@@ -205,6 +207,17 @@ export default function Vault() {
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
+        </div>
+
+        {/* Mobile Search Bar */}
+        <div className="relative md:hidden mt-3">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input 
+            placeholder="Search..." 
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="pl-9 bg-card h-9 text-sm w-full"
+          />
         </div>
       </div>
 
