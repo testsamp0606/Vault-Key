@@ -18,7 +18,7 @@ import {
   TabsTrigger,
 } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { Check, X, Trash2, LogOut, Search, Shield, Eye, Edit, Mail, RotateCcw, CreditCard, Activity, Send, Download, Bell } from "lucide-react";
+import { Check, X, Trash2, LogOut, Search, Shield, Eye, Edit, Mail, RotateCcw, CreditCard, Activity, Send, Download, Bell, Lock, Unlock } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import vaultImage from "@assets/generated_images/abstract_cybersecurity_vault_lock_concept.png";
 
@@ -357,6 +357,10 @@ export default function AdminDashboard() {
             <TabsTrigger value="controls" className="gap-2">
               <Activity className="h-4 w-4" />
               Controls
+            </TabsTrigger>
+            <TabsTrigger value="files" className="gap-2">
+              <Lock className="h-4 w-4" />
+              Files Access
             </TabsTrigger>
           </TabsList>
 
@@ -786,6 +790,112 @@ export default function AdminDashboard() {
               </Card>
             </div>
           </TabsContent>
+
+          {/* Files Access Tab */}
+          <TabsContent value="files" className="mt-8">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              {/* File Access Control */}
+              <Card className="bg-slate-900/50 border-slate-700 backdrop-blur-sm p-6 lg:col-span-2">
+                <h3 className="text-lg font-semibold text-white mb-6 flex items-center gap-2">
+                  <Lock className="h-5 w-5" />
+                  File Access by Plan
+                </h3>
+                <div className="space-y-4">
+                  {[
+                    {
+                      name: 'Free Trial',
+                      plan: 'free-trial',
+                      users: users.filter(u => u.plan === 'free-trial' && u.status === 'active'),
+                      canAccess: false,
+                      limit: 'No file access'
+                    },
+                    {
+                      name: 'Pro Plan',
+                      plan: 'pro',
+                      users: users.filter(u => u.plan === 'pro' && u.status === 'active'),
+                      canAccess: true,
+                      limit: '10 files, 100MB storage'
+                    },
+                    {
+                      name: 'Premium Plan',
+                      plan: 'premium',
+                      users: users.filter(u => u.plan === 'premium' && u.status === 'active'),
+                      canAccess: true,
+                      limit: 'Unlimited files, 1GB storage'
+                    }
+                  ].map((planInfo) => (
+                    <div key={planInfo.plan} className="p-4 rounded-lg border border-slate-700 bg-slate-800/50">
+                      <div className="flex items-center justify-between mb-3">
+                        <div>
+                          <p className="font-semibold text-white">{planInfo.name}</p>
+                          <p className="text-xs text-slate-400">{planInfo.limit}</p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          {planInfo.canAccess ? (
+                            <span className="flex items-center gap-1 text-xs bg-emerald-500/10 text-emerald-400 px-3 py-1 rounded-full border border-emerald-500/20">
+                              <Unlock className="h-3.5 w-3.5" />
+                              File Access Enabled
+                            </span>
+                          ) : (
+                            <span className="flex items-center gap-1 text-xs bg-red-500/10 text-red-400 px-3 py-1 rounded-full border border-red-500/20">
+                              <Lock className="h-3.5 w-3.5" />
+                              No Access
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      <p className="text-xs text-slate-300">
+                        {planInfo.users.length > 0 ? (
+                          <>
+                            <strong>{planInfo.users.length}</strong> active user{planInfo.users.length !== 1 ? 's' : ''} on this plan
+                            {planInfo.canAccess && ' - Can view, upload, and share files'}
+                            {!planInfo.canAccess && ' - Files feature not available'}
+                          </>
+                        ) : (
+                          <span className="text-slate-500">No active users on this plan</span>
+                        )}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </Card>
+
+              {/* Access Summary */}
+              <Card className="bg-slate-900/50 border-slate-700 backdrop-blur-sm p-6">
+                <h3 className="text-lg font-semibold text-white mb-4">Access Overview</h3>
+                <div className="space-y-3">
+                  <div className="p-3 bg-slate-800/50 rounded-lg">
+                    <p className="text-xs text-slate-400">Users with file access</p>
+                    <p className="text-2xl font-bold text-emerald-400 mt-1">
+                      {users.filter(u => u.status === 'active' && (u.plan === 'pro' || u.plan === 'premium')).length}
+                    </p>
+                  </div>
+                  <div className="p-3 bg-slate-800/50 rounded-lg">
+                    <p className="text-xs text-slate-400">Users without access</p>
+                    <p className="text-2xl font-bold text-red-400 mt-1">
+                      {users.filter(u => u.status === 'active' && u.plan === 'free-trial').length}
+                    </p>
+                  </div>
+                </div>
+              </Card>
+
+              {/* Restricted Users List */}
+              <Card className="bg-slate-900/50 border-slate-700 backdrop-blur-sm p-6">
+                <h3 className="text-lg font-semibold text-white mb-4">Free Trial Users (No Access)</h3>
+                <div className="space-y-2 max-h-48 overflow-y-auto">
+                  {users.filter(u => u.status === 'active' && u.plan === 'free-trial').map((user) => (
+                    <div key={user.email} className="p-2 bg-slate-800/50 rounded border border-slate-700">
+                      <p className="text-sm text-white">{user.email}</p>
+                      <p className="text-xs text-slate-400">Free Trial - Upgrade to access files</p>
+                    </div>
+                  ))}
+                  {users.filter(u => u.status === 'active' && u.plan === 'free-trial').length === 0 && (
+                    <p className="text-xs text-slate-500 p-4 text-center">No free trial users</p>
+                  )}
+                </div>
+              </Card>
+            </div>
+          </TabsContent>
         </Tabs>
 
         {/* Demo Info */}
@@ -796,7 +906,7 @@ export default function AdminDashboard() {
           transition={{ delay: 0.6 }}
         >
           <p className="text-xs text-blue-300">
-            <strong>Admin Features:</strong> User management, payment tracking, trial days, billing dates, bulk actions, announcements, and export capabilities.
+            <strong>Admin Features:</strong> User management, payment tracking, bulk actions, announcements, exports, and file access control by subscription plan.
           </p>
         </motion.div>
       </div>
