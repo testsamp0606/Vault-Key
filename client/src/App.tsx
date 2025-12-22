@@ -62,6 +62,7 @@ function Router() {
     return (
       <Switch>
         <Route path="/admin-dashboard" component={AdminDashboard} />
+        <Route path="/admin" component={AdminDashboard} />
         <Route path="/admin-login" component={AdminLogin} />
         <Route component={AdminDashboard} />
       </Switch>
@@ -81,6 +82,7 @@ function Router() {
         <Route path="/forgot-password" component={ForgotPassword} />
         <Route path="/register" component={Register} />
         <Route path="/admin-login" component={AdminLogin} />
+        <Route path="/admin" component={AdminLogin} />
         <Route component={Login} />
       </Switch>
     );

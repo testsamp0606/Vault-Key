@@ -98,16 +98,6 @@ export default function Login() {
     }, 1000);
   };
 
-  const handleDemoLogin = () => {
-    localStorage.setItem("isLoggedIn", "true");
-    localStorage.setItem("userEmail", "demo@example.com");
-    toast({
-      title: "Demo login successful",
-      description: "Welcome to SecureVault!",
-    });
-    setLocation("/");
-  };
-
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -218,26 +208,6 @@ export default function Login() {
                 {isLoading ? "Signing in..." : "Sign In"}
               </Button>
             </form>
-
-            {/* Divider */}
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-slate-600"></div>
-              </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-slate-900/50 text-slate-400">or</span>
-              </div>
-            </div>
-
-            {/* Demo Login Button */}
-            <Button
-              type="button"
-              onClick={handleDemoLogin}
-              variant="outline"
-              className="w-full h-10 border-slate-600 text-slate-300 hover:bg-slate-800 hover:text-white transition-colors"
-            >
-              Try Demo
-            </Button>
 
             {/* Sign Up Link */}
             <p className="text-center text-sm text-slate-400">

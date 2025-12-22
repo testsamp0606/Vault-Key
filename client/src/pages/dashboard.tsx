@@ -1,14 +1,27 @@
+import { useState, useEffect } from "react";
 import { MOCK_VAULT_ITEMS } from "@/lib/mock-data";
 import CredentialCard from "@/components/credential-card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, ShieldCheck, Lock, AlertTriangle } from "lucide-react";
+import { Search, ShieldCheck, Lock, AlertTriangle, FileText, CreditCard } from "lucide-react";
 import { motion } from "framer-motion";
 
 export default function Dashboard() {
+  const [userEmail, setUserEmail] = useState("");
+  const [userPlan, setUserPlan] = useState("");
+
+  useEffect(() => {
+    const email = localStorage.getItem("userEmail") || "";
+    const plan = localStorage.getItem("userPlan") || "free-trial";
+    setUserEmail(email);
+    setUserPlan(plan);
+  }, []);
+
   const recentItems = MOCK_VAULT_ITEMS.slice(0, 4);
   const weakPasswords = MOCK_VAULT_ITEMS.filter(i => i.strength === 'weak').length;
   const reusedPasswords = 2;
+  const totalDocuments = 5;
+  const totalCards = MOCK_VAULT_ITEMS.filter(i => i.type === 'card').length;
 
   const container = {
     hidden: { opacity: 0 },
@@ -29,8 +42,10 @@ export default function Dashboard() {
     <div className="space-y-8 animate-in fade-in duration-500">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Welcome back</h1>
-          <p className="text-muted-foreground">Here is your security overview.</p>
+          <h1 className="text-3xl font-bold text-foreground">Welcome back, {userEmail.split('@')[0]}</h1>
+          <p className="text-muted-foreground">
+            {userEmail} • {userPlan === 'free-trial' ? 'Free Trial' : userPlan === 'pro' ? 'Pro Plan' : 'Premium Plan'}
+          </p>
         </div>
         <div className="relative w-full md:w-96">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -42,7 +57,7 @@ export default function Dashboard() {
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <div className="bg-primary/10 border border-primary/20 p-6 rounded-2xl flex items-center gap-4 hover:shadow-lg transition-shadow">
           <div className="p-3 bg-primary/20 rounded-xl text-primary">
             <ShieldCheck className="h-6 w-6" />
@@ -59,7 +74,17 @@ export default function Dashboard() {
           </div>
           <div>
             <div className="text-2xl font-bold">{MOCK_VAULT_ITEMS.length}</div>
-            <div className="text-sm text-muted-foreground">Total Items</div>
+            <div className="text-sm text-muted-foreground">Total Credentials</div>
+          </div>
+        </div>
+
+        <div className="bg-card border border-border/50 p-6 rounded-2xl flex items-center gap-4 hover:shadow-lg transition-shadow">
+          <div className="p-3 bg-muted rounded-xl text-foreground">
+            <FileText className="h-6 w-6" />
+          </div>
+          <div>
+            <div className="text-2xl font-bold">{totalDocuments}</div>
+            <div className="text-sm text-muted-foreground">Documents</div>
           </div>
         </div>
 
