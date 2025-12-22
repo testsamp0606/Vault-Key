@@ -10,6 +10,7 @@ import Vault from "@/pages/vault";
 import Security from "@/pages/security";
 import Settings from "@/pages/settings";
 import Notes from "@/pages/notes";
+import FilesPage from "@/pages/files";
 import Login from "@/pages/login";
 import ForgotPassword from "@/pages/forgot-password";
 import Register from "@/pages/register";
@@ -97,6 +98,7 @@ function Router() {
         <Route path="/security" component={Security} />
         <Route path="/settings" component={Settings} />
         <Route path="/notes" component={Notes} />
+        <Route path="/files" component={FilesPage} />
         <Route component={NotFound} />
       </Switch>
     </Layout>

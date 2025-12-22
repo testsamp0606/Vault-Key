@@ -8,7 +8,8 @@ import {
   LogOut, 
   Menu,
   Plus,
-  FileText
+  FileText,
+  Folder
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
@@ -42,6 +43,7 @@ export default function Layout({ children, onLogout }: { children: React.ReactNo
     { name: "All Items", href: "/vault", icon: Lock },
     { name: "Security Check", href: "/security", icon: ShieldCheck },
     { name: "Notes", href: "/notes", icon: FileText },
+    { name: "Files", href: "/files", icon: Folder },
     { name: "Settings", href: "/settings", icon: Settings },
   ];
 
@@ -125,59 +127,60 @@ export default function Layout({ children, onLogout }: { children: React.ReactNo
   );
 
   return (
-    <div className="min-h-screen bg-background flex">
+    <div className="flex h-screen overflow-hidden bg-background">
       {/* Desktop Sidebar */}
-      <aside className="hidden md:block w-64 fixed inset-y-0 z-50">
+      <div className="hidden md:block w-64 sticky top-0 h-screen">
         <SidebarContent />
-      </aside>
+      </div>
 
       {/* Mobile Sidebar */}
       <Sheet open={isMobileOpen} onOpenChange={setIsMobileOpen}>
-        <SheetContent side="left" className="p-0 w-64 border-r border-sidebar-border bg-sidebar">
+        <SheetContent side="left" className="w-64 p-0 border-0">
           <SidebarContent />
         </SheetContent>
       </Sheet>
 
       {/* Main Content */}
-      <main className="flex-1 md:ml-64 min-h-screen flex flex-col">
-        {/* Mobile Header */}
-        <header className="md:hidden h-16 border-b border-border flex items-center justify-between px-4 bg-background/50 backdrop-blur-md sticky top-0 z-40">
-          <div className="flex items-center gap-2">
-            <div className="h-8 w-8 rounded-lg bg-primary/20 flex items-center justify-center border border-primary/20 overflow-hidden">
-              <img src={vaultImage} alt="Logo" className="w-full h-full object-cover" />
-            </div>
-            <span className="font-heading font-bold text-lg">SecureVault</span>
-          </div>
-          <Button variant="ghost" size="icon" onClick={() => setIsMobileOpen(true)}>
+      <div className="flex flex-col flex-1 overflow-hidden">
+        <div className="md:hidden flex items-center justify-between p-4 border-b border-border bg-background sticky top-0 z-10">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setIsMobileOpen(true)}
+          >
             <Menu className="h-5 w-5" />
           </Button>
-        </header>
-
-        <div className="flex-1 p-4 md:p-8 max-w-7xl mx-auto w-full">
-          {children}
+          <span className="font-heading font-bold text-lg">SecureVault</span>
+          <div className="w-10" />
         </div>
-      </main>
 
-      {/* Add Item Sheet */}
+        <div className="flex-1 overflow-y-auto">
+          <main className="p-6 md:p-8">
+            {children}
+          </main>
+        </div>
+      </div>
+
+      {/* Add Item Dialog */}
       <Sheet open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-        <SheetContent side="right" className="w-full sm:max-w-[500px] max-h-[100vh] overflow-y-auto">
+        <SheetContent side="right" className="w-full sm:max-w-md border-0">
           <SheetHeader>
             <SheetTitle>Add New Item</SheetTitle>
           </SheetHeader>
-          
-          <form onSubmit={handleSubmit} className="space-y-4">
+
+          <form onSubmit={handleSubmit} className="space-y-6 mt-8">
             <div className="space-y-2">
-              <Label htmlFor="type">Item Type</Label>
+              <Label htmlFor="item-type">Item Type</Label>
               <Select value={itemType} onValueChange={setItemType}>
-                <SelectTrigger id="type" className="bg-card border-border/50">
+                <SelectTrigger className="bg-card border-border/50">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="login">🔑 Login</SelectItem>
-                  <SelectItem value="card">💳 Credit Card</SelectItem>
-                  <SelectItem value="bank">🏦 Bank Account</SelectItem>
-                  <SelectItem value="note">📝 Secure Note</SelectItem>
-                  <SelectItem value="wifi">📶 WiFi</SelectItem>
+                  <SelectItem value="login">Login</SelectItem>
+                  <SelectItem value="card">Credit Card</SelectItem>
+                  <SelectItem value="bank">Bank Account</SelectItem>
+                  <SelectItem value="note">Secure Note</SelectItem>
+                  <SelectItem value="wifi">WiFi Password</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -186,29 +189,20 @@ export default function Layout({ children, onLogout }: { children: React.ReactNo
               <Label htmlFor="title">Title</Label>
               <Input
                 id="title"
-                placeholder="e.g., Gmail, My Visa Card"
+                placeholder="Enter item title"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 className="bg-card border-border/50"
-                autoFocus
               />
             </div>
 
             {itemType === "login" && (
               <>
                 <div className="space-y-2">
-                  <Label htmlFor="account">Account (Optional)</Label>
-                  <Input
-                    id="account"
-                    placeholder="e.g., personal, work, business"
-                    className="bg-card border-border/50"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="username">Username or Email</Label>
+                  <Label htmlFor="username">Username/Email</Label>
                   <Input
                     id="username"
-                    placeholder="your@email.com"
+                    placeholder="you@example.com"
                     className="bg-card border-border/50"
                   />
                 </div>
@@ -221,15 +215,23 @@ export default function Layout({ children, onLogout }: { children: React.ReactNo
                     className="bg-card border-border/50"
                   />
                 </div>
+                <div className="space-y-2">
+                  <Label htmlFor="url">Website URL (optional)</Label>
+                  <Input
+                    id="url"
+                    placeholder="https://example.com"
+                    className="bg-card border-border/50"
+                  />
+                </div>
               </>
             )}
 
             {itemType === "card" && (
               <>
                 <div className="space-y-2">
-                  <Label htmlFor="card-name">Name on Card</Label>
+                  <Label htmlFor="cardholder">Cardholder Name</Label>
                   <Input
-                    id="card-name"
+                    id="cardholder"
                     placeholder="John Doe"
                     className="bg-card border-border/50"
                   />
@@ -238,8 +240,8 @@ export default function Layout({ children, onLogout }: { children: React.ReactNo
                   <Label htmlFor="card-number">Card Number</Label>
                   <Input
                     id="card-number"
-                    placeholder="1234 5678 9012 3456"
-                    className="bg-card border-border/50 font-mono"
+                    placeholder="4532 1234 5678 9010"
+                    className="bg-card border-border/50"
                   />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
@@ -256,7 +258,7 @@ export default function Layout({ children, onLogout }: { children: React.ReactNo
                     <Input
                       id="cvv"
                       type="password"
-                      placeholder="•••"
+                      placeholder="123"
                       className="bg-card border-border/50"
                     />
                   </div>
@@ -264,29 +266,25 @@ export default function Layout({ children, onLogout }: { children: React.ReactNo
               </>
             )}
 
+            {itemType === "note" && (
+              <div className="space-y-2">
+                <Label htmlFor="note-content">Note Content</Label>
+                <textarea
+                  id="note-content"
+                  placeholder="Enter your secure note here..."
+                  rows={5}
+                  className="w-full p-3 rounded-md bg-card border border-border/50 text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/20"
+                />
+              </div>
+            )}
+
             {itemType === "bank" && (
               <>
-                <div className="space-y-2">
-                  <Label htmlFor="bank-name">Bank Name</Label>
-                  <Input
-                    id="bank-name"
-                    placeholder="e.g., Chase Bank"
-                    className="bg-card border-border/50"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="account-type">Account Type</Label>
-                  <Input
-                    id="account-type"
-                    placeholder="e.g., Checking, Savings"
-                    className="bg-card border-border/50"
-                  />
-                </div>
                 <div className="space-y-2">
                   <Label htmlFor="account-number">Account Number</Label>
                   <Input
                     id="account-number"
-                    placeholder="••••••5678"
+                    placeholder="1234567890"
                     className="bg-card border-border/50"
                   />
                 </div>
