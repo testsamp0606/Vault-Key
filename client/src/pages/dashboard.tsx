@@ -3,35 +3,12 @@ import { MOCK_VAULT_ITEMS } from "@/lib/mock-data";
 import CredentialCard from "@/components/credential-card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, ShieldCheck, Lock, AlertTriangle, FileText, CreditCard, Upload, Download, Trash2, MoreVertical, File, Image as ImageIcon } from "lucide-react";
+import { Search, ShieldCheck, Lock, AlertTriangle, FileText } from "lucide-react";
 import { motion } from "framer-motion";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-
-interface Document {
-  id: string;
-  name: string;
-  type: 'pdf' | 'image' | 'document';
-  size: string;
-  uploadedDate: string;
-}
-
-const MOCK_DOCUMENTS: Document[] = [
-  { id: '1', name: 'Passport_Scan.pdf', type: 'pdf', size: '2.4 MB', uploadedDate: '2 days ago' },
-  { id: '2', name: 'Bank_Statement_Dec.pdf', type: 'pdf', size: '1.8 MB', uploadedDate: '5 days ago' },
-  { id: '3', name: 'Driver_License.jpg', type: 'image', size: '856 KB', uploadedDate: '1 week ago' },
-  { id: '4', name: 'Insurance_Policy.pdf', type: 'pdf', size: '3.2 MB', uploadedDate: '2 weeks ago' },
-  { id: '5', name: 'Contract_Draft.docx', type: 'document', size: '450 KB', uploadedDate: '3 weeks ago' },
-];
 
 export default function Dashboard() {
   const [userEmail, setUserEmail] = useState("");
   const [userPlan, setUserPlan] = useState("");
-  const [documents, setDocuments] = useState<Document[]>(MOCK_DOCUMENTS);
 
   useEffect(() => {
     const email = localStorage.getItem("userEmail") || "";
@@ -43,25 +20,6 @@ export default function Dashboard() {
   const recentItems = MOCK_VAULT_ITEMS.slice(0, 4);
   const weakPasswords = MOCK_VAULT_ITEMS.filter(i => i.strength === 'weak').length;
   const reusedPasswords = 2;
-  const totalDocuments = documents.length;
-  const totalCards = MOCK_VAULT_ITEMS.filter(i => i.type === 'card').length;
-
-  const getFileIcon = (type: string) => {
-    switch (type) {
-      case 'pdf':
-        return <File className="h-5 w-5 text-red-500" />;
-      case 'image':
-        return <ImageIcon className="h-5 w-5 text-blue-500" />;
-      case 'document':
-        return <File className="h-5 w-5 text-blue-600" />;
-      default:
-        return <FileText className="h-5 w-5 text-slate-400" />;
-    }
-  };
-
-  const handleDeleteDocument = (id: string) => {
-    setDocuments(documents.filter(doc => doc.id !== id));
-  };
 
   const container = {
     hidden: { opacity: 0 },
@@ -118,16 +76,6 @@ export default function Dashboard() {
           </div>
         </div>
 
-        <div className="bg-card border border-border/50 p-6 rounded-2xl flex items-center gap-4 hover:shadow-lg transition-shadow">
-          <div className="p-3 bg-muted rounded-xl text-foreground">
-            <FileText className="h-6 w-6" />
-          </div>
-          <div>
-            <div className="text-2xl font-bold">{totalDocuments}</div>
-            <div className="text-sm text-muted-foreground">Documents</div>
-          </div>
-        </div>
-
         <div className="bg-destructive/10 border border-destructive/20 p-6 rounded-2xl flex items-center gap-4 hover:shadow-lg transition-shadow">
           <div className="p-3 bg-destructive/20 rounded-xl text-destructive">
             <AlertTriangle className="h-6 w-6" />
@@ -159,71 +107,6 @@ export default function Dashboard() {
             </motion.div>
           ))}
         </motion.div>
-      </div>
-
-      {/* Documents & Files Section */}
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-xl font-semibold">Documents & Files</h2>
-          <Button variant="outline" className="gap-2 text-sm">
-            <Upload className="h-4 w-4" />
-            <span className="hidden sm:inline">Upload Document</span>
-          </Button>
-        </div>
-
-        <div className="grid grid-cols-1 gap-3">
-          {documents.map((doc, index) => (
-            <motion.div
-              key={doc.id}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.05 }}
-              className="p-4 rounded-xl border border-border bg-card/50 hover:bg-card/80 transition-colors flex items-center justify-between group"
-            >
-              <div className="flex items-center gap-4 flex-1">
-                <div className="p-2.5 bg-muted/50 rounded-lg">
-                  {getFileIcon(doc.type)}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="font-medium text-sm truncate">{doc.name}</p>
-                  <p className="text-xs text-muted-foreground">{doc.size} • {doc.uploadedDate}</p>
-                </div>
-              </div>
-
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="opacity-0 group-hover:opacity-100 transition-opacity"
-                  >
-                    <MoreVertical className="h-4 w-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem className="gap-2 cursor-pointer">
-                    <Download className="h-4 w-4" />
-                    Download
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    className="gap-2 cursor-pointer text-destructive focus:text-destructive"
-                    onClick={() => handleDeleteDocument(doc.id)}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                    Delete
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </motion.div>
-          ))}
-        </div>
-
-        {documents.length === 0 && (
-          <div className="p-8 rounded-xl border border-dashed border-border text-center">
-            <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
-            <p className="text-muted-foreground">No documents yet. Upload your first file.</p>
-          </div>
-        )}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
