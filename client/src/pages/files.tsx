@@ -88,7 +88,9 @@ export default function FilesPage() {
   const [selectedDoc, setSelectedDoc] = useState<Document | null>(null);
   const [isShareDialogOpen, setIsShareDialogOpen] = useState(false);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+  const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
   const [shareEmail, setShareEmail] = useState("");
+  const [uploadFileName, setUploadFileName] = useState("");
   const { toast } = useToast();
 
   const filteredDocuments = documents.filter(doc =>
@@ -160,6 +162,43 @@ export default function FilesPage() {
     });
   };
 
+  const handleUploadFile = () => {
+    if (!uploadFileName.trim()) {
+      toast({
+        title: "Error",
+        description: "Please enter a file name",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const newFile: Document = {
+      id: Date.now().toString(),
+      name: uploadFileName,
+      type: uploadFileName.includes('.pdf') ? 'pdf' : uploadFileName.includes('.jpg') || uploadFileName.includes('.png') ? 'image' : 'document',
+      size: `${Math.floor(Math.random() * 5) + 0.5} MB`,
+      uploadedDate: 'Just now',
+      uploadedBy: 'You',
+      isShared: false,
+      sharedWith: []
+    };
+
+    setDocuments([newFile, ...documents]);
+    setUploadFileName("");
+    setIsUploadDialogOpen(false);
+    toast({
+      title: "File uploaded",
+      description: `${uploadFileName} has been uploaded successfully`,
+    });
+  };
+
+  const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setUploadFileName(file.name);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
@@ -167,7 +206,10 @@ export default function FilesPage() {
           <h1 className="text-3xl font-bold">Documents & Files</h1>
           <p className="text-muted-foreground">Manage and share your documents</p>
         </div>
-        <Button className="gap-2 bg-primary text-primary-foreground hover:bg-primary/90">
+        <Button 
+          className="gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
+          onClick={() => setIsUploadDialogOpen(true)}
+        >
           <Upload className="h-4 w-4" />
           Upload Document
         </Button>
@@ -377,6 +419,62 @@ export default function FilesPage() {
               </Button>
             </div>
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Upload Dialog */}
+      <Dialog open={isUploadDialogOpen} onOpenChange={setIsUploadDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Upload Document</DialogTitle>
+          </DialogHeader>
+
+          <div className="space-y-6">
+            <div className="space-y-2">
+              <Label htmlFor="file-input">Select File</Label>
+              <div className="border-2 border-dashed border-border/50 rounded-lg p-6 text-center hover:border-primary/50 transition-colors cursor-pointer"
+                onClick={() => document.getElementById('file-input')?.click()}
+              >
+                <Upload className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
+                <p className="text-sm font-medium">Click to select or drag and drop</p>
+                <p className="text-xs text-muted-foreground">PDF, images, documents</p>
+              </div>
+              <input
+                id="file-input"
+                type="file"
+                className="hidden"
+                onChange={handleFileInput}
+              />
+            </div>
+
+            {uploadFileName && (
+              <div className="p-3 rounded-lg bg-muted/30 border border-border/50">
+                <p className="text-sm font-medium">Selected file:</p>
+                <p className="text-sm text-muted-foreground mt-1">{uploadFileName}</p>
+              </div>
+            )}
+
+            <div className="flex gap-3">
+              <Button
+                onClick={handleUploadFile}
+                disabled={!uploadFileName}
+                className="flex-1 bg-primary hover:bg-primary/90"
+              >
+                <Upload className="h-4 w-4 mr-2" />
+                Upload
+              </Button>
+              <Button
+                onClick={() => {
+                  setIsUploadDialogOpen(false);
+                  setUploadFileName("");
+                }}
+                variant="outline"
+                className="flex-1"
+              >
+                Cancel
+              </Button>
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
 
