@@ -2,9 +2,17 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
-import { Trash2, Plus, Search } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Trash2, Plus, Search, Share2, X, FileText } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { motion } from "framer-motion";
+import { Link } from "wouter";
 
 interface Note {
   id: string;
@@ -12,6 +20,7 @@ interface Note {
   content: string;
   createdAt: Date;
   updatedAt: Date;
+  sharedWith?: string[];
 }
 
 export default function Notes() {
@@ -21,21 +30,24 @@ export default function Notes() {
       title: 'Important Reminders',
       content: 'Remember to update all passwords by end of month',
       createdAt: new Date('2024-12-15'),
-      updatedAt: new Date('2024-12-15')
+      updatedAt: new Date('2024-12-15'),
+      sharedWith: []
     },
     {
       id: '2',
       title: 'Account Recovery Info',
       content: 'Recovery email: backup@example.com\nRecovery phone: +1-555-0123',
       createdAt: new Date('2024-12-10'),
-      updatedAt: new Date('2024-12-10')
+      updatedAt: new Date('2024-12-10'),
+      sharedWith: []
     },
     {
       id: '3',
       title: 'Security Questions Answers',
       content: 'First pet: Max\nBirth city: New York',
       createdAt: new Date('2024-12-05'),
-      updatedAt: new Date('2024-12-05')
+      updatedAt: new Date('2024-12-05'),
+      sharedWith: []
     }
   ]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -43,6 +55,8 @@ export default function Notes() {
   const [isCreating, setIsCreating] = useState(false);
   const [newTitle, setNewTitle] = useState('');
   const [newContent, setNewContent] = useState('');
+  const [isShareDialogOpen, setIsShareDialogOpen] = useState(false);
+  const [shareEmail, setShareEmail] = useState('');
   const { toast } = useToast();
 
   const filteredNotes = notes.filter(note =>
@@ -89,6 +103,70 @@ export default function Notes() {
     });
   };
 
+  const validateAndShareNote = () => {
+    if (!shareEmail.trim()) {
+      toast({
+        title: "Email required",
+        description: "Please enter an email address",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!shareEmail.endsWith("@securevault.com")) {
+      toast({
+        title: "Invalid email",
+        description: "Only @securevault.com email addresses can access notes",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (selectedNote) {
+      const updated = notes.map(n =>
+        n.id === selectedNote.id
+          ? {
+            ...n,
+            sharedWith: [...(n.sharedWith || []), shareEmail]
+          }
+          : n
+      );
+      setNotes(updated);
+      setSelectedNote({
+        ...selectedNote,
+        sharedWith: [...(selectedNote.sharedWith || []), shareEmail]
+      });
+      setShareEmail("");
+      setIsShareDialogOpen(false);
+      toast({
+        title: "Note shared",
+        description: `"${selectedNote.title}" shared with ${shareEmail}`,
+      });
+    }
+  };
+
+  const removeSharedUser = (email: string) => {
+    if (selectedNote) {
+      const updated = notes.map(n =>
+        n.id === selectedNote.id
+          ? {
+            ...n,
+            sharedWith: (n.sharedWith || []).filter(e => e !== email)
+          }
+          : n
+      );
+      setNotes(updated);
+      setSelectedNote({
+        ...selectedNote,
+        sharedWith: (selectedNote.sharedWith || []).filter(e => e !== email)
+      });
+      toast({
+        title: "Access removed",
+        description: `${email} no longer has access to this note`,
+      });
+    }
+  };
+
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -96,13 +174,21 @@ export default function Notes() {
           <h1 className="text-3xl font-bold text-foreground">Notes</h1>
           <p className="text-muted-foreground">Keep track of important information securely</p>
         </div>
-        <Button 
-          className="gap-2 bg-primary hover:bg-primary/90"
-          onClick={() => setIsCreating(true)}
-        >
-          <Plus className="h-4 w-4" />
-          New Note
-        </Button>
+        <div className="flex gap-2">
+          <Link href="/files">
+            <Button variant="outline" className="gap-2">
+              <FileText className="h-4 w-4" />
+              View Files
+            </Button>
+          </Link>
+          <Button 
+            className="gap-2 bg-primary hover:bg-primary/90"
+            onClick={() => setIsCreating(true)}
+          >
+            <Plus className="h-4 w-4" />
+            New Note
+          </Button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -203,6 +289,7 @@ export default function Notes() {
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
+              className="space-y-4"
             >
               <Card className="p-6 space-y-4">
                 <div className="flex items-start justify-between">
@@ -213,18 +300,53 @@ export default function Notes() {
                       {selectedNote.updatedAt.toLocaleTimeString()}
                     </p>
                   </div>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="text-destructive hover:text-destructive"
-                    onClick={() => handleDeleteNote(selectedNote.id)}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="gap-2"
+                      onClick={() => setIsShareDialogOpen(true)}
+                    >
+                      <Share2 className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="text-destructive hover:text-destructive"
+                      onClick={() => handleDeleteNote(selectedNote.id)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </div>
                 <div className="bg-muted/30 p-4 rounded-lg min-h-[300px] whitespace-pre-wrap text-foreground">
                   {selectedNote.content}
                 </div>
+
+                {/* Shared With Section */}
+                {selectedNote.sharedWith && selectedNote.sharedWith.length > 0 && (
+                  <div className="pt-4 border-t border-border/50">
+                    <p className="text-sm font-medium mb-3">Shared with:</p>
+                    <div className="space-y-2">
+                      {selectedNote.sharedWith.map((email) => (
+                        <div
+                          key={email}
+                          className="flex items-center justify-between p-2 rounded bg-muted/30"
+                        >
+                          <p className="text-sm">{email}</p>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => removeSharedUser(email)}
+                            className="h-6 w-6 p-0"
+                          >
+                            <X className="h-3.5 w-3.5" />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </Card>
             </motion.div>
           ) : (
@@ -247,6 +369,58 @@ export default function Notes() {
           )}
         </div>
       </div>
+
+      {/* Share Dialog */}
+      <Dialog open={isShareDialogOpen} onOpenChange={setIsShareDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Share Note</DialogTitle>
+          </DialogHeader>
+
+          {selectedNote && (
+            <div className="space-y-6">
+              <div>
+                <p className="font-medium mb-2">{selectedNote.title}</p>
+                <p className="text-sm text-muted-foreground">
+                  Share this note with @securevault.com users
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="share-email">Email Address</Label>
+                <Input
+                  id="share-email"
+                  type="email"
+                  placeholder="user@securevault.com"
+                  value={shareEmail}
+                  onChange={(e) => setShareEmail(e.target.value)}
+                  className="bg-card border-border/50"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Only @securevault.com email addresses can access notes
+                </p>
+              </div>
+
+              <div className="flex gap-3">
+                <Button
+                  onClick={validateAndShareNote}
+                  className="flex-1 bg-primary hover:bg-primary/90"
+                >
+                  <Share2 className="h-4 w-4 mr-2" />
+                  Share
+                </Button>
+                <Button
+                  onClick={() => setIsShareDialogOpen(false)}
+                  variant="outline"
+                  className="flex-1"
+                >
+                  Close
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
