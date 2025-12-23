@@ -87,6 +87,7 @@ export default function FilesPage() {
   const [search, setSearch] = useState("");
   const [selectedDoc, setSelectedDoc] = useState<Document | null>(null);
   const [isShareDialogOpen, setIsShareDialogOpen] = useState(false);
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [shareEmail, setShareEmail] = useState("");
   const { toast } = useToast();
 
@@ -192,12 +193,18 @@ export default function FilesPage() {
                     className="hover:bg-muted/30 transition-colors"
                   >
                     <td className="px-6 py-4">
-                      <div className="flex items-center gap-3">
+                      <div 
+                        className="flex items-center gap-3 cursor-pointer group"
+                        onClick={() => {
+                          setSelectedDoc(doc);
+                          setIsDetailModalOpen(true);
+                        }}
+                      >
                         <div className="p-2 bg-muted/50 rounded">
                           {getFileIcon(doc.type)}
                         </div>
                         <div>
-                          <p className="font-medium text-sm">{doc.name}</p>
+                          <p className="font-medium text-sm text-primary group-hover:underline">{doc.name}</p>
                           <p className="text-xs text-muted-foreground">by {doc.uploadedBy}</p>
                         </div>
                       </div>
@@ -260,6 +267,95 @@ export default function FilesPage() {
           </div>
         )}
       </div>
+
+      {/* File Details Modal */}
+      <Dialog open={isDetailModalOpen} onOpenChange={setIsDetailModalOpen}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>File Details</DialogTitle>
+          </DialogHeader>
+
+          {selectedDoc && (
+            <div className="space-y-6">
+              {/* File Info */}
+              <div className="p-4 rounded-lg bg-muted/30 border border-border/50">
+                <div className="flex items-start gap-4">
+                  <div className="p-3 bg-muted/50 rounded-lg">
+                    {getFileIcon(selectedDoc.type)}
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-lg">{selectedDoc.name}</h3>
+                    <div className="space-y-1 mt-2 text-sm text-muted-foreground">
+                      <p>Size: {selectedDoc.size}</p>
+                      <p>Uploaded: {selectedDoc.uploadedDate}</p>
+                      <p>By: {selectedDoc.uploadedBy}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Sharing Status */}
+              <div className="space-y-2">
+                <h4 className="text-sm font-medium">Sharing Status</h4>
+                <div className="p-3 rounded-lg bg-muted/30 border border-border/50">
+                  {selectedDoc.isShared && selectedDoc.sharedWith && selectedDoc.sharedWith.length > 0 ? (
+                    <div className="space-y-2">
+                      <p className="text-xs text-muted-foreground">Shared with {selectedDoc.sharedWith.length} user{selectedDoc.sharedWith.length !== 1 ? 's' : ''}:</p>
+                      <div className="space-y-1">
+                        {selectedDoc.sharedWith.map((email) => (
+                          <p key={email} className="text-xs text-foreground flex items-center gap-2">
+                            <span className="h-1.5 w-1.5 bg-primary rounded-full"></span>
+                            {email}
+                          </p>
+                        ))}
+                      </div>
+                    </div>
+                  ) : (
+                    <p className="text-xs text-muted-foreground">This file is private</p>
+                  )}
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="grid grid-cols-2 gap-3">
+                <Button variant="outline" className="gap-2">
+                  <Download className="h-4 w-4" />
+                  Download
+                </Button>
+                <Button
+                  variant="outline"
+                  className="gap-2"
+                  onClick={() => {
+                    setIsDetailModalOpen(false);
+                    setIsShareDialogOpen(true);
+                  }}
+                >
+                  <Share2 className="h-4 w-4" />
+                  Share
+                </Button>
+                <Button
+                  variant="outline"
+                  className="text-destructive hover:text-destructive col-span-2 gap-2"
+                  onClick={() => {
+                    handleDeleteDocument(selectedDoc.id);
+                    setIsDetailModalOpen(false);
+                  }}
+                >
+                  <Trash2 className="h-4 w-4" />
+                  Delete File
+                </Button>
+              </div>
+
+              <Button
+                onClick={() => setIsDetailModalOpen(false)}
+                className="w-full bg-primary hover:bg-primary/90"
+              >
+                Close
+              </Button>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
 
       {/* Share Dialog */}
       <Dialog open={isShareDialogOpen} onOpenChange={setIsShareDialogOpen}>
