@@ -3,8 +3,16 @@ import { MOCK_VAULT_ITEMS } from "@/lib/mock-data";
 import CredentialCard from "@/components/credential-card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, ShieldCheck, Lock, AlertTriangle, FileText } from "lucide-react";
+import { Search, ShieldCheck, Lock, AlertTriangle, FileText, Folder } from "lucide-react";
 import { motion } from "framer-motion";
+
+const MOCK_FILES = [
+  { id: '1', name: 'Passport_Scan.pdf' },
+  { id: '2', name: 'Bank_Statement_Dec.pdf' },
+  { id: '3', name: 'Driver_License.jpg' },
+  { id: '4', name: 'Insurance_Policy.pdf' },
+  { id: '5', name: 'Contract_Draft.docx' },
+];
 
 export default function Dashboard() {
   const [userEmail, setUserEmail] = useState("");
@@ -20,6 +28,7 @@ export default function Dashboard() {
   const recentItems = MOCK_VAULT_ITEMS.slice(0, 4);
   const weakPasswords = MOCK_VAULT_ITEMS.filter(i => i.strength === 'weak').length;
   const reusedPasswords = 2;
+  const totalFiles = MOCK_FILES.length;
 
   const container = {
     hidden: { opacity: 0 },
@@ -83,6 +92,16 @@ export default function Dashboard() {
           <div>
             <div className="text-2xl font-bold text-destructive">{weakPasswords}</div>
             <div className="text-sm text-destructive/80 font-medium">Weak Passwords</div>
+          </div>
+        </div>
+
+        <div className="bg-card border border-border/50 p-6 rounded-2xl flex items-center gap-4 hover:shadow-lg transition-shadow">
+          <div className="p-3 bg-muted rounded-xl text-foreground">
+            <Folder className="h-6 w-6" />
+          </div>
+          <div>
+            <div className="text-2xl font-bold">{totalFiles}</div>
+            <div className="text-sm text-muted-foreground">Files & Documents</div>
           </div>
         </div>
       </div>

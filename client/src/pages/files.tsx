@@ -144,6 +144,22 @@ export default function FilesPage() {
     });
   };
 
+  const handleDownloadFile = (fileName: string) => {
+    // Simulate file download
+    const element = document.createElement("a");
+    const file = new Blob([`Mock content for ${fileName}`], { type: "application/octet-stream" });
+    element.href = URL.createObjectURL(file);
+    element.download = fileName;
+    document.body.appendChild(element);
+    element.click();
+    document.body.removeChild(element);
+    
+    toast({
+      title: "Download started",
+      description: `${fileName} is being downloaded`,
+    });
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
@@ -229,7 +245,10 @@ export default function FilesPage() {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuItem className="gap-2 cursor-pointer">
+                          <DropdownMenuItem 
+                            className="gap-2 cursor-pointer"
+                            onClick={() => handleDownloadFile(doc.name)}
+                          >
                             <Download className="h-4 w-4" />
                             Download
                           </DropdownMenuItem>
@@ -318,7 +337,11 @@ export default function FilesPage() {
 
               {/* Action Buttons */}
               <div className="grid grid-cols-2 gap-3">
-                <Button variant="outline" className="gap-2">
+                <Button 
+                  variant="outline" 
+                  className="gap-2"
+                  onClick={() => handleDownloadFile(selectedDoc.name)}
+                >
                   <Download className="h-4 w-4" />
                   Download
                 </Button>
