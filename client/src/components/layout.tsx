@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
+import { useTheme } from "next-themes";
 import { 
   LayoutDashboard, 
   Lock, 
@@ -9,7 +10,9 @@ import {
   Menu,
   Plus,
   FileText,
-  Folder
+  Folder,
+  Moon,
+  Sun
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
@@ -26,6 +29,7 @@ export default function Layout({ children, onLogout }: { children: React.ReactNo
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [itemType, setItemType] = useState("login");
   const [title, setTitle] = useState("");
+  const { theme, setTheme } = useTheme();
   const { toast } = useToast();
 
   const handleLogout = () => {
@@ -114,7 +118,23 @@ export default function Layout({ children, onLogout }: { children: React.ReactNo
         })}
       </nav>
 
-      <div className="p-4 border-t border-sidebar-border">
+      <div className="p-4 space-y-2 border-t border-sidebar-border">
+        <button 
+          onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+          className="flex items-center gap-3 px-3 py-2.5 w-full rounded-lg text-sm font-medium text-sidebar-foreground hover:bg-sidebar-accent/50 transition-colors cursor-pointer"
+        >
+          {theme === "dark" ? (
+            <>
+              <Sun className="h-4 w-4" />
+              Light Mode
+            </>
+          ) : (
+            <>
+              <Moon className="h-4 w-4" />
+              Dark Mode
+            </>
+          )}
+        </button>
         <button 
           onClick={handleLogout}
           className="flex items-center gap-3 px-3 py-2.5 w-full rounded-lg text-sm font-medium text-destructive hover:text-destructive hover:bg-destructive/10 transition-colors cursor-pointer"
@@ -151,7 +171,17 @@ export default function Layout({ children, onLogout }: { children: React.ReactNo
             <Menu className="h-5 w-5" />
           </Button>
           <span className="font-heading font-bold text-lg">SecureVault</span>
-          <div className="w-10" />
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+          >
+            {theme === "dark" ? (
+              <Sun className="h-5 w-5" />
+            ) : (
+              <Moon className="h-5 w-5" />
+            )}
+          </Button>
         </div>
 
         <div className="flex-1 overflow-y-auto">
